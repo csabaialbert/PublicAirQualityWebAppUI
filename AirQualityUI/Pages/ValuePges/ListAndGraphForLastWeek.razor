@@ -1,0 +1,71 @@
+﻿@page "/listAndGraphForLastWeek"
+@attribute [Authorize(Roles = "admin, user")]
+@inject NavigationManager NavigationManager;
+@using AirQualityUI.Models;
+@using AirQualityUI.Data;
+
+<PageTitle>Elmúlt heti adatok áttekintése</PageTitle>
+
+@* Az elmúlt héten rögzített hőmérséklet és páratartalom adatok megjelenítésére szolgáló felület. *@
+
+@if (loadingDatas)
+{
+    <MudGrid Justify="Justify.FlexStart">
+        <MudItem xs="12" sm="12" md="12" lg="12" xl="12">
+            <MudProgressLinear Style="width:100%;" Color="Color.Error" Indeterminate="true" />
+        </MudItem>
+    </MudGrid>
+
+}
+else
+{
+    @* Modulkiválasztó lista megjelenítése *@
+    <MudGrid Justify="Justify.Center">
+        <MudItem xs="12" sm="12" md="12" lg="12" xl="12">
+            <MudPaper Class="pa-16 ma-2" Elevation="3" Style=" background-color: rgb(255,255,255,0.8);">
+
+                <MudText Align="Align.Center" Typo="Typo.h4">Elmúlt hétre vonatkozó adatok</MudText>
+                <MudSelect T="Module" Label="Modulok" Placeholder="Válasszon modult..." Text="Válasszon modult..." TextChanged="(()=> onModuleSelectionChanged())" @bind-Value="selectedModule">
+                    @foreach (var module in modules)
+                    {
+                        <MudSelectItem T="Module" Value="@module">@module.ModuleName</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudPaper>
+        </MudItem>
+        @if (valuesForSelection.Count() > 0)
+        {
+            @* Modul kiválasztás után a rendelkezésre álló adatok megjelenítésre kerülnek egy táblázatban, valamint egy vonaldiagramon. *@
+            <MudItem xs="12" sm="12" md="12" lg="12" xl="12" Style="padding-top:3%; padding-bottom:3%; background-color: rgb(255,255,255,0.8);">
+                <MudPaper Class="pa-16 ma-2" Elevation="3" Style=" background-color: rgb(255,255,255,0.8);">
+                <MudTable Items="@valuesForSelection" FixedHeader="true" FixedFooter="true" Height="400px" Hover="true" Breakpoint="Breakpoint.Sm">
+                    <HeaderContent>
+                        <MudTh>Dátum</MudTh>
+                        <MudTh>Hőmérséklet [°C]</MudTh>
+                        <MudTh>Páratartalom [%]</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Dátum">@context.ReadDate</MudTd>
+                        <MudTd DataLabel="Hőmérséklet [°C]">@context.Temperature</MudTd>
+                        <MudTd DataLabel="Páratartalom [%]">@context.Humidity</MudTd>
+                    </RowTemplate>
+                    <PagerContent>
+                        <MudTablePager />
+                    </PagerContent>
+                </MudTable>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12" sm="12" md="12" lg="12" xl="12" Style="padding-top:3%; padding-bottom:3%; background-color: rgb(255,255,255,0.8);">
+                <MudPaper Class="pa-1 ma-2" Elevation="3" Style=" background-color: rgb(255,255,255,0.8);">
+                   <MudChart ChartType="ChartType.Line" ChartSeries="@_TempHumiditySeries" ChartOptions="@_options" XAxisLabels="@tempHumidityXaxisLbl" Width="100%" Height="350px"></MudChart>
+                </MudPaper>
+            </MudItem>
+           
+        }
+    </MudGrid>
+}
+
+
+
+@code {
+}

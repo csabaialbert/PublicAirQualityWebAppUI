@@ -1,0 +1,60 @@
+﻿@page "/login"
+
+@inject NavigationManager NavigationManager;
+@inject AuthenticationStateProvider authStateProvider;
+@using AirQualityUI.Models;
+@using AirQualityUI.Services;
+@using AirQualityUI.Data;
+@using BCrypt;
+
+<PageTitle>Belépés</PageTitle>
+
+@* Felhasználót beléptető oldal, melyen egy űrlap szerepel két beviteli mezővel és egy beküldő gombbal. *@
+
+<MudGrid Justify="Justify.Center" Class="d-flex justify-center align-center" Style="background-color:rgb(255,255,255,0)">
+    <MudItem xs="8" sm="8" md="6" lg="6" xl="4" Style="background-color:rgb(255,255,255,0)">
+        <MudCard Class="mt-lg-5 mb-lg-5 pt-lg-5 pb-lg-5" Style="background-color:rgb(255,255,255,0.8)">
+            <MudText Typo="Typo.h4" Class="mt-lg-5 mb-lg-5" Align="Align.Center">A folytatáshoz kérjük adja meg adatait:</MudText>
+            <MudForm Model="@user" @ref="@form" Validation="@(userValidator.ValidateValue)" ValidationDelay="0" Style="background-color:rgb(255,255,255,0)">
+                <MudCardContent Style="background-color:rgb(255,255,255,0)">
+                    <MudGrid Justify="Justify.Center">
+                        <MudText Color="Color.Error" Typo="Typo.caption">@message</MudText>
+                        <MudItem xs="12" sm="12" md="8" lg="8" xl="8">
+                            <MudTextField @bind-Value="user.Email"
+                                          For="@(() => user.Email)"
+                                          Immediate="true"
+                                          Label="E-mail cím"
+                                          Variant="Variant.Filled"
+                                          OnlyValidateIfDirty="true" />
+                        </MudItem>
+                        <MudItem xs="12" sm="12" md="8" lg="8" xl="8">
+                            <MudTextField @bind-Value="user.Password"
+                                          For="@(() => user.Password)"
+                                          Immediate="true"
+                                          Label="Jelszó" 
+                                          InputType="InputType.Password"
+                                          Variant="Variant.Filled"
+                                          OnlyValidateIfDirty="true"
+                                          @onkeydown="@OnPbKeyPressed" />
+                        </MudItem>
+                        @if (disableSubmit)
+                        {
+                            <MudItem xs="12" sm="12" md="8" lg="8" xl="8">
+                                <MudProgressLinear Color="Color.Error" Indeterminate="true" Size="Size.Large" Class="my-7" />
+                            </MudItem>
+                        }
+                        
+                        <MudItem xs="12" sm="12" md="8" lg="8" xl="8">
+                            <MudButton FullWidth="true" Disabled="disableSubmit" Variant="Variant.Filled" Color="Color.Success" Class="ml-auto" OnClick="@(()=>ClickSubmit())">Belépés</MudButton>
+                        </MudItem>
+                    </MudGrid>
+                </MudCardContent>
+            </MudForm>
+        </MudCard>
+    </MudItem>
+</MudGrid>
+
+
+@code {
+   
+}

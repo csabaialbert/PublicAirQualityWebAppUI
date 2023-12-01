@@ -1,0 +1,28 @@
+﻿@page "/"
+
+@using AirQualityUI.Data;
+<PageTitle>Kezdőlap</PageTitle>
+
+@* A webalkalmazás kezdőlapja. *@
+
+<MudGrid Justify="Justify.Center">
+    <MudItem xs="12" sm="12" md="12" lg="12" xl="12">
+        <MudCard Style="padding-top:10%; padding-bottom:10%; background-color: rgb(255,255,255,0.5);">
+            <AuthorizeView>
+                <Authorized>
+                    @* Belépett felhasználónál megjelenő üdvözlő üzenet. *@
+                    <MudCardContent>
+                        <MudText Typo="Typo.h3">Üdvözöljük rendszerünkben kedves @context.User.Identity.Name !</MudText>
+                    </MudCardContent>
+                </Authorized>
+                <NotAuthorized>
+                    @* Nem bejelentkezett felhasználónál megjelenő üdvözlő üzenet. *@
+                    <MudCardContent>
+                        <MudText Typo="Typo.h3">Üdvözöljük!</MudText>
+                        <MudText Typo="Typo.h4">A folytatáshoz kérjük jelentkezzen be.</MudText>
+                    </MudCardContent>
+                </NotAuthorized>
+            </AuthorizeView>
+        </MudCard>
+    </MudItem>
+</MudGrid>

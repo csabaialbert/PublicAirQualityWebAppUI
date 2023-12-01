@@ -1,0 +1,43 @@
+﻿<CascadingAuthenticationState>
+    <Router AppAssembly="@typeof(App).Assembly">
+        <Found Context="routeData">
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" >
+                <NotAuthorized>
+                   <MudGrid Justify="Justify.Center">
+                        <MudItem xs="12" sm="12" md="12" lg="12" xl="12">
+
+                            @* Abban az esetben megjelenő üzenet, hogyha a felhasználó nincs bejelentkezve, 
+                            vagy olyan oldalt szeretne megnyitni, amelyhez nincs jogosultsága. *@
+                            <MudCard Style="padding-top:10%; padding-bottom:10%; background-color: rgb(255,255,255,0.5);">
+                                <MudCardContent>
+                                    <MudText Typo="Typo.h3">A keresett oldal megtekintéséhez nincs jogosultsága!</MudText>
+                                    <MudText Typo="Typo.h4">Amennyiben szüksége lenne rá, kérjük forduljon az adminisztrátorhoz!</MudText>
+                                </MudCardContent>
+                            </MudCard>
+                        </MudItem>
+                    </MudGrid>
+                </NotAuthorized>
+                <Authorizing>
+                    <MudGrid Justify="Justify.Center">
+                        <MudItem xs="12" sm="12" md="12" lg="12" xl="12">
+
+                            @* Abban az esetben megjelenő üzenet, hogyha a felhasználó adatainak ellenőrzése még folyamatban van. *@
+                            <MudCard Style="padding-top:10%; padding-bottom:10%; background-color: rgb(255,255,255,0.5);">
+                                <MudCardContent>
+                                    <MudText Typo="Typo.h3">Felhasználói adatok ellenőrzése folyamatban...</MudText>
+                                </MudCardContent>
+                            </MudCard>
+                        </MudItem>
+                    </MudGrid>
+                </Authorizing>
+            </AuthorizeRouteView>
+            <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+        </Found>
+        <NotFound>
+            <PageTitle>Not found</PageTitle>
+            <LayoutView Layout="@typeof(MainLayout)">
+                <p role="alert">Sorry, there's nothing at this address.</p>
+            </LayoutView>
+        </NotFound>
+    </Router>
+</CascadingAuthenticationState>

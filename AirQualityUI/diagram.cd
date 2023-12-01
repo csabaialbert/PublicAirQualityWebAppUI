@@ -1,0 +1,438 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="AirQualityUI.Models.AirQualityDbContext">
+    <Position X="14.5" Y="0.75" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAACAAAAAUAAAAAAAAAAAQEAAAAAAAAAAAAAAAACA=</HashCode>
+      <FileName>Models\AirQualityDbContext.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Modules" />
+      <Property Name="SensorValues" />
+      <Property Name="UserModuleConnections" />
+      <Property Name="Users" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="AirQualityUI.Models.EmailPassw">
+    <Position X="23.75" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAA=</HashCode>
+      <FileName>Models\EmailPassw.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AirQualityUI.Models.Module">
+    <Position X="25.5" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAEAAAAAAAAAAAAAAAAAAACAAAAAAAAACA=</HashCode>
+      <FileName>Models\Module.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AirQualityUI.Models.SensorValue">
+    <Position X="27.25" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEADAAACAAARAJAgwAECAAQAAQAAAAAAAQAASRAECAA=</HashCode>
+      <FileName>Models\Sensorvalue.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AirQualityUI.Models.User">
+    <Position X="23.75" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAEAAACAEAAAAAAAAAAAAAAAAAAgCAQABAAAAAAg=</HashCode>
+      <FileName>Models\User.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AirQualityUI.Models.UserModuleConnection">
+    <Position X="25.5" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAADAAAAAAAAAAAAAAAAAAwAAAAAAAAAAAAACAAAAAA=</HashCode>
+      <FileName>Models\UserModuleConnection.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AirQualityUI.Services.UserService">
+    <Position X="9" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IAABAAAIAAAEAAAAgQAAACAgABAAAAABAAAAAAQAAAA=</HashCode>
+      <FileName>Services\UserService.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="_dbContext" />
+    </ShowAsAssociation>
+    <Lollipop Orientation="Left" Position="0.17" />
+  </Class>
+  <Class Name="AirQualityUI.Services.SensorValueService">
+    <Position X="15" Y="5" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AQABAACJIAAAAAAAAAABADACAAAAAAAAAAAAAAAAASA=</HashCode>
+      <FileName>Services\SensorValueService.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="_dbContext" />
+    </ShowAsAssociation>
+    <Lollipop Orientation="Bottom" Position="1.271" />
+  </Class>
+  <Class Name="AirQualityUI.Services.ModuleService">
+    <Position X="11.25" Y="15.25" Width="1.5" />
+    <AssociationLine Name="_dbContext" Type="AirQualityUI.Models.AirQualityDbContext" ManuallyRouted="true">
+      <Path>
+        <Point X="12.75" Y="16.667" />
+        <Point X="13.554" Y="16.667" />
+        <Point X="13.554" Y="1.87" />
+        <Point X="14.5" Y="1.87" />
+      </Path>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AAABAAAAAAAIAAAAARAAACAAAAEAAAAADAAAAAAAIAA=</HashCode>
+      <FileName>Services\ModuleService.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="_dbContext" />
+    </ShowAsAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="AirQualityUI.Services.CustomAuthenticationStateProvider">
+    <Position X="20.5" Y="3.75" Width="2.5" />
+    <InheritanceLine Type="Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider" FixedToPoint="true">
+      <Path>
+        <Point X="21.625" Y="6.25" />
+        <Point X="21.625" Y="5.819" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAgAAAAAAAAAAAAAAQAAAAAAAAAAAAABAAAAAA=</HashCode>
+      <FileName>Services\CustomAuthenticationStateProvider.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="_sessionStorage" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="AirQualityUI.Controllers.AirQualityController">
+    <Position X="7.5" Y="4.25" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAIAAAIAAAAAAAAAAAAAABAAAAQACAAAAAUABAAAAA=</HashCode>
+      <FileName>Controllers\AirQualityController.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="_config" />
+      <Field Name="_sensorValueService" />
+      <Field Name="_userService" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="Microsoft.EntityFrameworkCore.DbSet&lt;TEntity&gt;">
+    <Position X="18.5" Y="0.75" Width="1.5" />
+    <TypeIdentifier />
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="AirQualityUI.Pages.ValuePges.ListAndGraphForLastWeek">
+    <Position X="3.5" Y="8.25" Width="2.5" />
+    <AssociationLine Name="authStateProvider" Type="Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider" ManuallyRouted="true" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="6" Y="11.375" />
+        <Point X="13.471" Y="11.318" Type="JumpStart" />
+        <Point X="13.637" Y="11.317" Type="JumpEnd" />
+        <Point X="14.375" Y="11.311" />
+        <Point X="14.375" Y="11.987" />
+        <Point X="17.042" Y="11.987" Type="JumpStart" />
+        <Point X="17.208" Y="11.987" Type="JumpEnd" />
+        <Point X="19.944" Y="11.987" />
+        <Point X="19.944" Y="7.75" />
+        <Point X="20.5" Y="7.75" />
+      </Path>
+      <MemberNameLabel ManuallyPlaced="true">
+        <Position X="0.094" Y="0.079" />
+      </MemberNameLabel>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AAAEUAAAAQAgAAkwABAgACAACAAAAAACAAAAAIAACBA=</HashCode>
+      <FileName>Pages\ValuePges\ListAndGraphForLastWeek.razor.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="_ModuleService" />
+      <Property Name="_SensorService" />
+      <Property Name="authStateProvider" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider">
+    <Position X="20.5" Y="6.25" Width="2.25" />
+    <TypeIdentifier />
+  </Class>
+  <Class Name="AirQualityUI.Pages.ValuePges.ListAndGraphForSelectedDate">
+    <Position X="20.25" Y="16.25" Width="2.5" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <AssociationLine Name="_ModuleService" Type="AirQualityUI.Services.IModuleService" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="21.125" Y="16.25" />
+        <Point X="21.125" Y="13.25" />
+        <Point X="20.771" Y="13.25" Type="JumpStart" />
+        <Point X="20.604" Y="13.25" Type="JumpEnd" />
+        <Point X="17.208" Y="13.25" Type="JumpStart" />
+        <Point X="17.042" Y="13.25" Type="JumpEnd" />
+        <Point X="13.637" Y="13.25" Type="JumpStart" />
+        <Point X="13.471" Y="13.25" Type="JumpEnd" />
+        <Point X="12.75" Y="13.25" />
+      </Path>
+      <MemberNameLabel ManuallyPlaced="true">
+        <Position X="1.058" Y="0.095" />
+      </MemberNameLabel>
+    </AssociationLine>
+    <AssociationLine Name="_SensorService" Type="AirQualityUI.Services.ISensorValueService" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="21.5" Y="16.25" />
+        <Point X="21.5" Y="10.314" />
+        <Point X="20.771" Y="10.314" Type="JumpStart" />
+        <Point X="20.604" Y="10.314" Type="JumpEnd" />
+        <Point X="20.027" Y="10.314" Type="JumpStart" />
+        <Point X="19.861" Y="10.314" Type="JumpEnd" />
+        <Point X="18" Y="10.314" />
+      </Path>
+    </AssociationLine>
+    <AssociationLine Name="authStateProvider" Type="Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider" FixedToPoint="true">
+      <Path>
+        <Point X="22.438" Y="16.25" />
+        <Point X="22.438" Y="8.19" />
+      </Path>
+      <MemberNameLabel ManuallyPlaced="true">
+        <Position X="-1.268" Y="1.213" />
+      </MemberNameLabel>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AAIE0AABAG4gJAkwADAAIQAACEAgFKAiuFcgBoAADAI=</HashCode>
+      <FileName>Pages\ValuePges\ListAndGraphForSelectedDate.razor.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="_ModuleService" />
+      <Property Name="_SensorService" />
+      <Property Name="authStateProvider" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="AirQualityUI.Pages.ValuePges.ListAndGraphForToday">
+    <Position X="15.5" Y="14.5" Width="3.75" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <AssociationLine Name="_ModuleService" Type="AirQualityUI.Services.IModuleService" ManuallyRouted="true" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="16.125" Y="14.5" />
+        <Point X="16.125" Y="14.25" />
+        <Point X="15.25" Y="14.25" />
+        <Point X="15.25" Y="14.562" />
+        <Point X="13.637" Y="14.562" Type="JumpStart" />
+        <Point X="13.471" Y="14.562" Type="JumpEnd" />
+        <Point X="12.75" Y="14.562" />
+      </Path>
+      <MemberNameLabel ManuallyPlaced="true">
+        <Position X="1.108" Y="0.089" />
+      </MemberNameLabel>
+    </AssociationLine>
+    <AssociationLine Name="authStateProvider" Type="Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider" ManuallyRouted="true" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="19.25" Y="15.953" />
+        <Point X="20.688" Y="15.953" />
+        <Point X="20.688" Y="8.19" />
+      </Path>
+      <MemberNameLabel ManuallyPlaced="true">
+        <Position X="-1.487" Y="1.31" />
+      </MemberNameLabel>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AAIE0AABAG4gIAkwADAgISAACEAgFKAiuFcgBoAADBI=</HashCode>
+      <FileName>Pages\ValuePges\ListAndGraphForToday.razor.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="_ModuleService" />
+      <Property Name="_SensorService" />
+      <Property Name="authStateProvider" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="AirQualityUI.Pages.ValuePges.ListSensorValues">
+    <Position X="23.5" Y="13" Width="2.75" />
+    <AssociationLine Name="_ModuleService" Type="AirQualityUI.Services.IModuleService">
+      <MemberNameLabel ManuallyPlaced="true">
+        <Position X="1.131" Y="0.066" />
+      </MemberNameLabel>
+    </AssociationLine>
+    <AssociationLine Name="authStateProvider" Type="Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider" ManuallyRouted="true" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="25.688" Y="13" />
+        <Point X="25.688" Y="7.562" />
+        <Point X="22.75" Y="7.562" />
+      </Path>
+      <MemberNameLabel ManuallyPlaced="true">
+        <Position X="1.4" Y="-0.347" />
+      </MemberNameLabel>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AAAAUAAAAAAgAAEwABAgACAACAAAAAACAAAAAAAAABA=</HashCode>
+      <FileName>Pages\ValuePges\ListSensorValues.razor.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="_ModuleService" />
+      <Property Name="_SensorService" />
+      <Property Name="authStateProvider" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="AirQualityUI.Pages.UserPages.LoginPage">
+    <Position X="0.75" Y="1" Width="1.5" />
+    <NestedTypes>
+      <Class Name="AirQualityUI.Pages.UserPages.LoginPage.UserValidator" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Pages\UserPages\LoginPage.razor.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AQAAIAAAAAAAABAwAAAAAAAAAAAAAAACAEAAAQAABSA=</HashCode>
+      <FileName>Pages\UserPages\LoginPage.razor.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="_service" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="AirQualityUI.Pages.UserPages.RegisterPage">
+    <Position X="0.75" Y="5.5" Width="1.5" />
+    <NestedTypes>
+      <Class Name="AirQualityUI.Pages.UserPages.RegisterPage.UserValidator" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Pages\UserPages\RegisterPage.razor.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
+    <AssociationLine Name="_ModuleService" Type="AirQualityUI.Services.IModuleService" ManuallyRouted="true" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="1.938" Y="9.819" />
+        <Point X="1.938" Y="13.938" />
+        <Point X="11.25" Y="13.938" />
+      </Path>
+    </AssociationLine>
+    <AssociationLine Name="_service" Type="AirQualityUI.Services.IUserService" ManuallyRouted="true" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="2.25" Y="6.062" />
+        <Point X="2.625" Y="6.062" />
+        <Point X="2.625" Y="2.688" />
+        <Point X="6.75" Y="2.688" />
+      </Path>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AQAAAAAAAAAggAAQABAAAAAACQAAAAACAEIAAQAABSA=</HashCode>
+      <FileName>Pages\UserPages\RegisterPage.razor.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="_ModuleService" />
+      <Property Name="_service" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="AirQualityUI.Pages.UserPages.UpdateUserDetailsPage">
+    <Position X="3.25" Y="3" Width="2" />
+    <NestedTypes>
+      <Class Name="AirQualityUI.Pages.UserPages.UpdateUserDetailsPage.UserValidator" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Pages\UserPages\UpdateUserDetailsPage.razor.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
+    <AssociationLine Name="_ModuleService" Type="AirQualityUI.Services.IModuleService" ManuallyRouted="true" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="3.375" Y="8.088" />
+        <Point X="3.375" Y="13.562" />
+        <Point X="11.25" Y="13.562" />
+      </Path>
+    </AssociationLine>
+    <AssociationLine Name="_service" Type="AirQualityUI.Services.IUserService" ManuallyRouted="true" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="5.25" Y="3.188" />
+        <Point X="5.622" Y="3.188" />
+        <Point X="6.75" Y="3.188" />
+      </Path>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>IQAAAAACAAAggAAQABAAAAAACUAAAAACAMIAQQAABCA=</HashCode>
+      <FileName>Pages\UserPages\UpdateUserDetailsPage.razor.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="_ModuleService" />
+      <Property Name="_service" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="AirQualityUI.Pages.ModulePages.AddNewModule">
+    <Position X="8.75" Y="16.5" Width="1.5" />
+    <NestedTypes>
+      <Class Name="AirQualityUI.Pages.ModulePages.AddNewModule.ModuleValidator" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Pages\ModulePages\AddNewModule.razor.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
+    <AssociationLine Name="_ModuleService" Type="AirQualityUI.Services.IModuleService" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="9.531" Y="16.5" />
+        <Point X="9.531" Y="14.75" />
+        <Point X="11.25" Y="14.75" />
+      </Path>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AQAAAAAAAAAgQAAQAAAAAAAAAAAAAAACAEIAAQAAACg=</HashCode>
+      <FileName>Pages\ModulePages\AddNewModule.razor.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="_ModuleService" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="AirQualityUI.Pages.ModulePages.ModifyModule">
+    <Position X="6" Y="16.5" Width="2.5" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Class Name="AirQualityUI.Pages.ModulePages.ModifyModule.ModuleValidator">
+        <TypeIdentifier>
+          <NewMemberFileName>Pages\ModulePages\ModifyModule.razor.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
+    <AssociationLine Name="_ModuleService" Type="AirQualityUI.Services.IModuleService" ManuallyRouted="true" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="7.875" Y="16.5" />
+        <Point X="7.875" Y="14.312" />
+        <Point X="11.25" Y="14.312" />
+      </Path>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AQAAAAAAAAAgQgAQABAAAAAAAAAAAAACAEIAAQAAACg=</HashCode>
+      <FileName>Pages\ModulePages\ModifyModule.razor.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="_ModuleService" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage.ProtectedSessionStorage">
+    <Position X="20.5" Y="2" Width="2.5" />
+    <TypeIdentifier />
+  </Class>
+  <Interface Name="AirQualityUI.Services.IUserService">
+    <Position X="6.75" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IAAAAAAIAAAEAAAAgQAAACAgABAAAAABAAAAAAAAAAA=</HashCode>
+      <FileName>Services\IUserService.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="AirQualityUI.Services.ISensorValueService">
+    <Position X="14.5" Y="8.5" Width="3.5" />
+    <TypeIdentifier>
+      <HashCode>AQAAAAAJIAAAAAAAAAABACACAAAAAAAAAAAAAAAAASA=</HashCode>
+      <FileName>Services\ISensorValueService.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="AirQualityUI.Services.IModuleService">
+    <Position X="11.25" Y="12.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAIAAAAARAAACAAAAEAAAAADAAAAAAAIAA=</HashCode>
+      <FileName>Services\IModuleService.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="Microsoft.Extensions.Configuration.IConfiguration">
+    <Position X="10.5" Y="4.5" Width="1.5" />
+    <TypeIdentifier />
+  </Interface>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

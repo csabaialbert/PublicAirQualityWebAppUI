@@ -1,0 +1,85 @@
+﻿@page "/register"
+@attribute [Authorize(Roles = "admin")]
+
+@inject NavigationManager NavigationManager;
+@using AirQualityUI.Models;
+@using AirQualityUI.Services;
+@using AirQualityUI.Data;
+@using BCrypt;
+
+<PageTitle>Felhasználó létrehozása</PageTitle>
+
+@* Új felhasználó létrehozására szolgáló felület, ami egy validált űrlapot jelenít meg. *@
+
+@if (loadingDatas)
+{
+    <MudGrid Justify="Justify.FlexStart">
+        <MudItem xs="12" sm="12" md="12" lg="12" xl="12">
+            <MudProgressLinear Style="width:100%;" Color="Color.Error" Indeterminate="true" />
+        </MudItem>
+    </MudGrid>
+
+}
+else
+{
+    <MudGrid Justify="Justify.Center" Class="d-flex py-4 justify-center align-center" Style="background-color:rgb(255,255,255,0.6)">
+        <MudItem xs="8" sm="8" md="6" lg="6" xl="4" Style="background-color:rgb(255,255,255,0.6)">
+            <MudCard Class="py-lg-5">
+                <MudForm Model="@user" @ref="@form" Validation="@(userValidator.ValidateValue)" ValidationDelay="0">
+                    <MudCardContent>
+                        <MudText Typo="Typo.caption" Color="Color.Error" Align="Align.Center">@message</MudText>
+                        <MudTextField @bind-Value="user.UserName"
+                                        For="@(() => user.UserName)"
+                                        Immediate="true"
+                                        Label="Felhasználónév"
+                                        OnlyValidateIfDirty="true" />
+
+                        <MudTextField @bind-Value="user.LastName"
+                                        For="@(() => user.LastName)"
+                                        Immediate="true"
+                                        Label="Vezetéknév"
+                                        OnlyValidateIfDirty="true" />
+
+                        <MudTextField @bind-Value="user.FirstName"
+                                        For="@(() => user.FirstName)"
+                                        Immediate="true"
+                                        Label="Keresztnév"
+                                        OnlyValidateIfDirty="true" />
+
+                        <MudTextField @bind-Value="user.Email"
+                                        For="@(() => user.Email)"
+                                        Immediate="true"
+                                        Label="E-mail cím"
+                                        OnlyValidateIfDirty="true" />
+
+                        <MudTextField @bind-Value="user.Password"
+                                        For="@(() => user.Password)"
+                                        Immediate="true"
+                                        Label="Jelszó"
+                                        InputType="InputType.Password"
+                                        OnlyValidateIfDirty="true" />
+                        <MudSelect T="string" Label="Jogosultsági szint" @bind-Value="SelectedRole">
+                            @foreach (var role in Enum.GetValues(typeof(Roles)))
+                            {
+                                <MudSelectItem T="string" Value="@role.ToString()">@role.ToString()</MudSelectItem>
+                            }
+                        </MudSelect>
+                        <MudSelect T="Module" MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))" Label="Modulok" MultiSelection="true" Placeholder="Válasszon modult..." @bind-SelectedValues="selectedModules">
+                            @foreach (var module in modules)
+                            {
+                                <MudSelectItem T="Module" Value="@module">@module.ModuleName</MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudCardContent>
+                </MudForm>
+                <MudCardActions>
+                    <MudButton Variant="Variant.Filled" Disabled="@submitDisabled" Color="Color.Success" Class="ml-auto" OnClick="@(async () => await Submit())">Mentés</MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+}
+
+@code {
+   
+}

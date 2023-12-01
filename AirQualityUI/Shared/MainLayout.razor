@@ -1,0 +1,84 @@
+﻿@inherits LayoutComponentBase
+
+<MudThemeProvider Theme="_currentTheme" />
+<MudDialogProvider FullWidth="true" MaxWidth="MaxWidth.ExtraSmall" />
+<MudSnackbarProvider />
+
+@* A felületek alapfelépítését meghatározó programkód *@
+
+<MudLayout >
+    <MudAppBar Color="Color.Success" Elevation="25">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+        
+    </MudAppBar>
+
+    <MudDrawer @bind-Open=_drawerOpen Elevation="25" Style=" background-image: linear-gradient(120deg, rgb(55, 200, 120) 0%, rgb(150, 230, 150) 70%);" Class="mudblazor-appbar-band">
+        <MudDrawerHeader Class="mudblazor-brand" Style="max-width:100%;" LinkToIndex="true">
+
+            <MudImage Src="./aqm_logo.png" Alt="AQM logo" Style="max-width:100%; background-color: rgb(255,255,255,0.8)" Elevation="25" Class="rounded-lg" />
+
+        </MudDrawerHeader>
+        <NavMenu />
+    </MudDrawer>
+    <MudMainContent Class="mudblazor-main-content">
+        <MudContainer MaxWidth="MaxWidth.Large">
+            @Body
+        </MudContainer>
+
+        <MudScrollToTop TopOffset="400">
+            <MudFab Icon="@Icons.Material.Filled.KeyboardArrowUp" Color="Color.Success" />
+        </MudScrollToTop>
+    </MudMainContent>
+
+</MudLayout>
+
+@code
+{
+
+    private bool _drawerOpen = false;
+    private string searchValue = string.Empty;
+
+    private void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+
+    #region Theme
+
+    private MudTheme _currentTheme = new MudTheme();
+    private readonly MudTheme _defaultTheme =
+        new MudTheme()
+            {
+                Palette = new Palette()
+                {
+                    Black = "#272c34",
+                    Primary = "#27ff27",
+                }
+            };
+    private readonly MudTheme _darkTheme =
+        new MudTheme()
+            {
+                Palette = new Palette()
+                {
+                    Black = "#27272f",
+                    Background = "#32333d",
+                    BackgroundGrey = "#27272f",
+                    Surface = "#373740",
+                    DrawerBackground = "#27272f",
+                    DrawerText = "rgba(255,255,255, 0.50)",
+                    AppbarBackground = "#27272f",
+                    AppbarText = "rgba(255,255,255, 0.70)",
+                    TextPrimary = "rgba(255,255,255, 0.70)",
+                    TextSecondary = "rgba(255,255,255, 0.50)",
+                    ActionDefault = "#adadb1",
+                    ActionDisabled = "rgba(255,255,255, 0.26)",
+                    ActionDisabledBackground = "rgba(255,255,255, 0.12)",
+                    DrawerIcon = "rgba(255,255,255, 0.50)"
+                }
+            };
+
+    #endregion
+
+}
+
+

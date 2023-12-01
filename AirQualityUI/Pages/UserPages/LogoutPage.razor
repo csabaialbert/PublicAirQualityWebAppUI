@@ -1,0 +1,27 @@
+﻿@page "/logout"
+
+@inject NavigationManager NavigationManager;
+@inject AuthenticationStateProvider authStateProvider;
+@using AirQualityUI.Models;
+@using AirQualityUI.Services;
+
+<PageTitle>Kiléptetés</PageTitle>
+
+@* Kiléptetési folyamat végrehajtása alatt megjelenő tájékoztató felület. *@
+
+<MudGrid Justify="Justify.Center">
+    <MudItem xs="12" sm="12" md="12" lg="12" xl="12">
+        <MudCard Style="padding-top:10%; padding-bottom:10%; background-color: rgb(255,255,255,0.5);">
+            <MudCardContent>
+                <MudText Typo="Typo.h3">Kiléptetés folyamatban...</MudText>
+                <MudProgressLinear Color="Color.Error" Indeterminate="true" Size="Size.Large" Class="my-7" />
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+</MudGrid>
+
+
+
+@code {
+    
+}

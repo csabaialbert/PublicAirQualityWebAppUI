@@ -1,0 +1,733 @@
+﻿@page "/listAndGraphForToday"
+@attribute [Authorize(Roles = "admin, user")]
+@inject NavigationManager NavigationManager;
+@using AirQualityUI.Models;
+@using AirQualityUI.Data;
+@using ApexCharts
+
+<PageTitle>Mai adatok áttekintése</PageTitle>
+
+@* Aktuális napra vonatkozó adatok áttekintésére szolgáló felület. *@
+
+@if (loadingDatas)
+{
+    <MudGrid Justify="Justify.FlexStart">
+        <MudItem xs="12" sm="12" md="12" lg="12" xl="12">
+            <MudProgressLinear Style="width:100%;" Color="MudBlazor.Color.Error" Indeterminate="true" />
+        </MudItem>
+    </MudGrid>
+
+}
+else
+{
+    @* Modul kiválasztására szolgáló űrlap *@
+    <MudGrid Justify="Justify.Center">
+        <MudItem xs="12" sm="12" md="12" lg="12" xl="12">
+            <MudPaper Class="pa-16 ma-2" Elevation="3" Style=" background-color: rgb(255,255,255,0.8);">
+                <MudText Align="MudBlazor.Align.Center" Typo="Typo.h4">Mai napra vonatkozó adatok</MudText>
+                <MudSelect T="Module" Label="Modulok" Placeholder="Válasszon modult..." Text="Válasszon modult..." TextChanged="(()=> onModuleSelectionChanged())" @bind-Value="selectedModule">
+                    @foreach (var module in modules)
+                    {
+                        <MudSelectItem T="Module" Value="@module">@module.ModuleName</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudPaper>
+        </MudItem>
+        @if (valuesForSelection.Count() > 0)
+        {
+
+            @* A kiválasztott modul, kiválasztott napon rögzített adatainak megjelenítésére szolgáló elemek.
+    Csoportonként egy-egy táblázat, valamint két-két grafikon jelenik meg.
+    *@
+           <MudItem xs="12" sm="12" md="12" lg="12" xl="12" Style="padding-top:3%; padding-bottom:3%; background-color: rgb(255,255,255,0.8);">
+                <MudText Typo="Typo.h4" Align="MudBlazor.Align.Center">Hőmérséklet és páratartalom adatok</MudText>
+                <MudPaper Class="pa-16 ma-2" Elevation="3" Style=" background-color: rgb(255,255,255,0.8);">
+                    <MudTable Items="@valuesForSelection" FixedHeader="true" FixedFooter="true" Height="400px" Hover="true" Breakpoint="Breakpoint.Sm">
+                        <HeaderContent>
+                            <MudTh>Dátum</MudTh>
+                            <MudTh>Hőmérséklet [°C]</MudTh>
+                            <MudTh>Páratartalom [%]</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd DataLabel="Dátum">@context.ReadDate</MudTd>
+                            <MudTd DataLabel="Hőmérséklet [°C]">@context.Temperature</MudTd>
+                            <MudTd DataLabel="Páratartalom [%]">@context.Humidity</MudTd>
+                        </RowTemplate>
+                        <PagerContent>
+                            <MudTablePager />
+                        </PagerContent>
+                    </MudTable>
+                </MudPaper>
+
+                 @* Apex chart grafikon, ami a hőmérséklet és páratartalom adatokat jeleníti meg. *@
+                <MudPaper Class="pa-1 ma-2" Elevation="3" Style=" background-color: rgb(255,255,255,0.8);">
+                    <ApexChart TItem="SensorValue" Title="Hőmérséklet és páratartalom">
+
+                        <ApexPointSeries TItem="SensorValue"
+                                         Items="valuesForSelection"
+                                         Name="Hőmérséklet"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.ReadDate)"
+                                         YAggregate="@(e => e.Sum(e => e.Temperature))"
+                                         OrderBy="e=>e.X" />
+
+                        <ApexPointSeries TItem="SensorValue"
+                                         Items="valuesForSelection"
+                                         Name="Páratartalom"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.ReadDate)"
+                                         YAggregate="@(e => e.Sum(e => e.Humidity))"
+                                         OrderBy="e=>e.X" />
+                    </ApexChart>
+
+                    @* MudChart grafikon, ami a hőmérséklet és páratartalo óránkénti átlagértékeit jeleníti meg. *@
+                    <MudChart ChartType="MudBlazor.ChartType.Line" ChartSeries="@_TempHumiditySeries" ChartOptions="@_thoptions" XAxisLabels="@tempHumidityXaxisLbl" Width="100%" Height="350px"></MudChart>
+                </MudPaper>
+            </MudItem>
+
+
+            <MudItem xs="12" sm="12" md="12" lg="12" xl="12" Style="padding-top:3%; padding-bottom:3%; background-color: rgb(255,255,255,0.8);">
+                <MudText Typo="Typo.h4" Align="MudBlazor.Align.Center">MQ-2 érzékelő adatok</MudText>
+                <MudPaper Class="pa-16 ma-2" Elevation="3" Style=" background-color: rgb(255,255,255,0.8);">
+                    <MudTable Items="@valuesForSelection" FixedHeader="true" FixedFooter="true" Height="400px" Hover="true" Breakpoint="Breakpoint.Sm">
+                        <HeaderContent>
+                            <MudTh>Dátum</MudTh>
+                            <MudTh>Mq2 nyers érték</MudTh>
+                            <MudTh>Mq2 LPG érték [ppm]</MudTh>
+                            <MudTh>Mq2 CO érték [ppm]</MudTh>
+                            <MudTh>Mq2 füst érték [ppm]</MudTh>
+                            <MudTh>Mq2 propán érték [ppm]</MudTh>
+                            <MudTh>Mq2 hidrogén(H2) érték [ppm]</MudTh>
+                            <MudTh>Mq2 alkohol érték [ppm]</MudTh>
+                            <MudTh>Mq2 metán érték [ppm]</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd DataLabel="Dátum">@context.ReadDate</MudTd>
+                            <MudTd DataLabel="Mq2 nyers érték">@context.Mq2Raw</MudTd>
+                            <MudTd DataLabel="Mq2 LPG érték [ppm]">@context.Mq2Lpg</MudTd>
+                            <MudTd DataLabel="Mq2 CO érték [ppm]">@context.Mq2Co</MudTd>
+                            <MudTd DataLabel="Mq2 füst érték [ppm]">@context.Mq2Smoke</MudTd>
+                            <MudTd DataLabel="Mq2 propán érték [ppm]">@context.Mq2Propane</MudTd>
+                            <MudTd DataLabel="Mq2 hidrogén(H2) érték [ppm]">@context.Mq2H2</MudTd>
+                            <MudTd DataLabel="Mq2 alkohol érték [ppm]">@context.Mq2Alcohol</MudTd>
+                            <MudTd DataLabel="Mq2 metán érték [ppm]">@context.Mq2Ch4</MudTd>
+                        </RowTemplate>
+                        <PagerContent>
+                            <MudTablePager />
+                        </PagerContent>
+                    </MudTable>
+                </MudPaper>
+                <MudPaper Class="pa-1 ma-2" Elevation="3" Style=" background-color: rgb(255,255,255,0.8);">
+                    <ApexChart TItem="SensorValue" Title="MQ-2 értékek">
+
+                        <ApexPointSeries TItem="SensorValue"
+                                         Items="valuesForSelection"
+                                         Name="Mq2 nyers érték"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.ReadDate)"
+                                         YAggregate="@(e => e.Sum(e => e.Mq2Raw))"
+                                         OrderBy="e=>e.X" />
+
+                        <ApexPointSeries TItem="SensorValue"
+                                         Items="valuesForSelection"
+                                         Name="Mq2 LPG érték [ppm]"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.ReadDate)"
+                                         YAggregate="@(e => e.Sum(e => e.Mq2Lpg))"
+                                         OrderBy="e=>e.X" />
+                        <ApexPointSeries TItem="SensorValue"
+                                         Items="valuesForSelection"
+                                         Name="Mq2 CO érték [ppm]"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.ReadDate)"
+                                         YAggregate="@(e => e.Sum(e => e.Mq2Co))"
+                                         OrderBy="e=>e.X" />
+                        <ApexPointSeries TItem="SensorValue"
+                                         Items="valuesForSelection"
+                                         Name="Mq2 füst érték [ppm]"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.ReadDate)"
+                                         YAggregate="@(e => e.Sum(e => e.Mq2Smoke))"
+                                         OrderBy="e=>e.X" />
+                        <ApexPointSeries TItem="SensorValue"
+                                         Items="valuesForSelection"
+                                         Name="Mq2 propán érték [ppm]"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.ReadDate)"
+                                         YAggregate="@(e => e.Sum(e => e.Mq2Propane))"
+                                         OrderBy="e=>e.X" />
+                        <ApexPointSeries TItem="SensorValue"
+                                         Items="valuesForSelection"
+                                         Name="Mq2 hidrogén(H2) érték [ppm]"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.ReadDate)"
+                                         YAggregate="@(e => e.Sum(e => e.Mq2H2))"
+                                         OrderBy="e=>e.X" />
+                        <ApexPointSeries TItem="SensorValue"
+                                         Items="valuesForSelection"
+                                         Name="Mq2 alkohol érték [ppm]"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.ReadDate)"
+                                         YAggregate="@(e => e.Sum(e => e.Mq2Alcohol))"
+                                         OrderBy="e=>e.X" />
+                        <ApexPointSeries TItem="SensorValue"
+                                         Items="valuesForSelection"
+                                         Name="Mq2 metán érték [ppm]"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.ReadDate)"
+                                         YAggregate="@(e => e.Sum(e => e.Mq2Ch4))"
+                                         OrderBy="e=>e.X" />
+                    </ApexChart>
+                    <MudChart ChartType="MudBlazor.ChartType.Line" ChartSeries="@_Mq2Series" ChartOptions="@_mq2options" XAxisLabels="@mq2XaxisLbl" Width="100%" Height="350px"></MudChart>
+                </MudPaper>
+            </MudItem>
+
+            <MudItem xs="12" sm="12" md="12" lg="12" xl="12" Style="padding-top:3%; padding-bottom:3%; background-color: rgb(255,255,255,0.8);">
+                <MudText Typo="Typo.h4" Align="MudBlazor.Align.Center">MQ-3 érzékelő adatok</MudText>
+                <MudPaper Class="pa-16 ma-2" Elevation="3" Style=" background-color: rgb(255,255,255,0.8);">
+                    <MudTable Items="@valuesForSelection" FixedHeader="true" FixedFooter="true" Height="400px" Hover="true" Breakpoint="Breakpoint.Sm">
+                        <HeaderContent>
+                            <MudTh>Dátum</MudTh>
+                            <MudTh>Mq3 nyers érték</MudTh>
+                            <MudTh>Mq3 alkohol érték [ppm]</MudTh>
+                            <MudTh>Mq3 benzin érték [ppm]</MudTh>
+                            <MudTh>Mq3 hexán érték [ppm]</MudTh>
+                            <MudTh>Mq3 LPG érték [ppm]</MudTh>
+                            <MudTh>Mq3 CO érték [ppm]</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd DataLabel="Dátum">@context.ReadDate</MudTd>
+                            <MudTd DataLabel="Mq3 nyers érték">@context.Mq3Raw</MudTd>
+                            <MudTd DataLabel="Mq3 alkohol érték [ppm]">@context.Mq3Alcohol</MudTd>
+                            <MudTd DataLabel="Mq3 benzin érték [ppm]">@context.Mq3Benzine</MudTd>
+                            <MudTd DataLabel="Mq3 hexán érték [ppm]">@context.Mq3Exane</MudTd>
+                            <MudTd DataLabel="Mq3 LPG érték [ppm]">@context.Mq3Lpg</MudTd>
+                            <MudTd DataLabel="Mq3 CO érték [ppm]">@context.Mq3Co</MudTd>
+                        </RowTemplate>
+                        <PagerContent>
+                            <MudTablePager />
+                        </PagerContent>
+                    </MudTable>
+                </MudPaper>
+                <MudPaper Class="pa-1 ma-2" Elevation="3" Style=" background-color: rgb(255,255,255,0.8);">
+                    <ApexChart TItem="SensorValue" Title="MQ-3 értékek">
+
+                        <ApexPointSeries TItem="SensorValue"
+                                         Items="valuesForSelection"
+                                         Name="Mq3 nyers érték"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.ReadDate)"
+                                         YAggregate="@(e => e.Sum(e => e.Mq3Raw))"
+                                         OrderBy="e=>e.X" />
+
+                        <ApexPointSeries TItem="SensorValue"
+                                         Items="valuesForSelection"
+                                         Name="Mq3 alkohol érték [ppm]"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.ReadDate)"
+                                         YAggregate="@(e => e.Sum(e => e.Mq3Alcohol))"
+                                         OrderBy="e=>e.X" />
+                        <ApexPointSeries TItem="SensorValue"
+                                         Items="valuesForSelection"
+                                         Name="Mq3 benzin érték [ppm]"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.ReadDate)"
+                                         YAggregate="@(e => e.Sum(e => e.Mq3Benzine))"
+                                         OrderBy="e=>e.X" />
+                        <ApexPointSeries TItem="SensorValue"
+                                         Items="valuesForSelection"
+                                         Name="Mq3 hexán érték [ppm]"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.ReadDate)"
+                                         YAggregate="@(e => e.Sum(e => e.Mq3Exane))"
+                                         OrderBy="e=>e.X" />
+                        <ApexPointSeries TItem="SensorValue"
+                                         Items="valuesForSelection"
+                                         Name="Mq3 LPG érték [ppm]"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.ReadDate)"
+                                         YAggregate="@(e => e.Sum(e => e.Mq3Lpg))"
+                                         OrderBy="e=>e.X" />
+                    </ApexChart>
+                    <MudChart ChartType="MudBlazor.ChartType.Line" ChartSeries="@_Mq3Series" ChartOptions="@_mq3options" XAxisLabels="@mq3XaxisLbl" Width="100%" Height="350px"></MudChart>
+                </MudPaper>
+            </MudItem>
+
+            <MudItem xs="12" sm="12" md="12" lg="12" xl="12" Style="padding-top:3%; padding-bottom:3%; background-color: rgb(255,255,255,0.8);">
+                <MudText Typo="Typo.h4" Align="MudBlazor.Align.Center">MQ-4 érzékelő adatok</MudText>
+                <MudPaper Class="pa-16 ma-2" Elevation="3" Style=" background-color: rgb(255,255,255,0.8);">
+                    <MudTable Items="@valuesForSelection" FixedHeader="true" FixedFooter="true" Height="400px" Hover="true" Breakpoint="Breakpoint.Sm">
+                        <HeaderContent>
+                            <MudTh>Dátum</MudTh>
+                            <MudTh>Mq4 nyers érték</MudTh>
+                            <MudTh>Mq4 metán érték [ppm]</MudTh>
+                            <MudTh>Mq4 LPG érték [ppm]</MudTh>
+                            <MudTh>Mq4 hidrogén(H2) érték [ppm]</MudTh>
+                            <MudTh>Mq4 füst érték [ppm]</MudTh>
+                            <MudTh>Mq4 alkohol érték [ppm]</MudTh>
+                            <MudTh>Mq4 CO érték [ppm]</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd DataLabel="Dátum">@context.ReadDate</MudTd>
+                            <MudTd DataLabel="Mq4 nyers érték">@context.Mq4Raw</MudTd>
+                            <MudTd DataLabel="Mq4 metán érték [ppm]">@context.Mq4Ch4</MudTd>
+                            <MudTd DataLabel="Mq4 LPG érték [ppm]">@context.Mq4Lpg</MudTd>
+                            <MudTd DataLabel="Mq4 hidrogén(H2) érték [ppm]">@context.Mq4H2</MudTd>
+                            <MudTd DataLabel="Mq4 füst érték [ppm]">@context.Mq4Smoke</MudTd>
+                            <MudTd DataLabel="Mq4 alkohol érték [ppm]">@context.Mq4Alcohol</MudTd>
+                            <MudTd DataLabel="Mq4 CO érték [ppm]">@context.Mq4Co</MudTd>
+                        </RowTemplate>
+                        <PagerContent>
+                            <MudTablePager />
+                        </PagerContent>
+                    </MudTable>
+                </MudPaper>
+                <MudPaper Class="pa-1 ma-2" Elevation="3" Style=" background-color: rgb(255,255,255,0.8);">
+                    <ApexChart TItem="SensorValue" Title="MQ-4 értékek">
+
+                        <ApexPointSeries TItem="SensorValue"
+                                         Items="valuesForSelection"
+                                         Name="Mq4 nyers érték"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.ReadDate)"
+                                         YAggregate="@(e => e.Sum(e => e.Mq4Raw))"
+                                         OrderBy="e=>e.X" />
+
+                        <ApexPointSeries TItem="SensorValue"
+                                         Items="valuesForSelection"
+                                         Name="Mq4 metán érték [ppm]"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.ReadDate)"
+                                         YAggregate="@(e => e.Sum(e => e.Mq4Ch4))"
+                                         OrderBy="e=>e.X" />
+                        <ApexPointSeries TItem="SensorValue"
+                                         Items="valuesForSelection"
+                                         Name="Mq4 LPG érték [ppm]"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.ReadDate)"
+                                         YAggregate="@(e => e.Sum(e => e.Mq4Lpg))"
+                                         OrderBy="e=>e.X" />
+                        <ApexPointSeries TItem="SensorValue"
+                                         Items="valuesForSelection"
+                                         Name="Mq4 hidrogén(H2) érték [ppm]"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.ReadDate)"
+                                         YAggregate="@(e => e.Sum(e => e.Mq4H2))"
+                                         OrderBy="e=>e.X" />
+                        <ApexPointSeries TItem="SensorValue"
+                                         Items="valuesForSelection"
+                                         Name="Mq4 füst érték [ppm]"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.ReadDate)"
+                                         YAggregate="@(e => e.Sum(e => e.Mq4Smoke))"
+                                         OrderBy="e=>e.X" />
+                        <ApexPointSeries TItem="SensorValue"
+                                         Items="valuesForSelection"
+                                         Name="Mq4 alkohol érték [ppm]"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.ReadDate)"
+                                         YAggregate="@(e => e.Sum(e => e.Mq4Alcohol))"
+                                         OrderBy="e=>e.X" />
+                        <ApexPointSeries TItem="SensorValue"
+                                         Items="valuesForSelection"
+                                         Name="Mq4 CO érték [ppm]"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.ReadDate)"
+                                         YAggregate="@(e => e.Sum(e => e.Mq4Co))"
+                                         OrderBy="e=>e.X" />
+                    </ApexChart>
+                    <MudChart ChartType="MudBlazor.ChartType.Line" ChartSeries="@_Mq4Series" ChartOptions="@_mq4options" XAxisLabels="@mq4XaxisLbl" Width="100%" Height="350px"></MudChart>
+                </MudPaper>
+            </MudItem>
+
+            <MudItem xs="12" sm="12" md="12" lg="12" xl="12" Style="padding-top:3%; padding-bottom:3%; background-color: rgb(255,255,255,0.8);">
+                <MudText Typo="Typo.h4" Align="MudBlazor.Align.Center">MQ-135 érzékelő adatok</MudText>
+                <MudPaper Class="pa-16 ma-2" Elevation="3" Style=" background-color: rgb(255,255,255,0.8);">
+                    <MudTable Items="@valuesForSelection" FixedHeader="true" FixedFooter="true" Height="400px" Hover="true" Breakpoint="Breakpoint.Sm">
+                        <HeaderContent>
+                            <MudTh>Dátum</MudTh>
+                            <MudTh>Mq135 nyers érték</MudTh>
+                            <MudTh>Mq135 aceton érték [ppm]</MudTh>
+                            <MudTh>Mq135 toluol érték [ppm]</MudTh>
+                            <MudTh>Mq135 alkohol érték [ppm]</MudTh>
+                            <MudTh>Mq135 CO2 érték [ppm]</MudTh>
+                            <MudTh>Mq135 ammónia(NH4) érték [ppm]</MudTh>
+                            <MudTh>Mq135 CO érték [ppm]</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd DataLabel="Dátum">@context.ReadDate</MudTd>
+                            <MudTd DataLabel="Mq135 nyers érték">@context.Mq135Raw</MudTd>
+                            <MudTd DataLabel="Mq135 aceton érték [ppm]">@context.Mq135Aceton</MudTd>
+                            <MudTd DataLabel="Mq135 toluol érték [ppm]">@context.Mq135Tolueno</MudTd>
+                            <MudTd DataLabel="Mq135 alkohol érték [ppm]">@context.Mq135Alcohol</MudTd>
+                            <MudTd DataLabel="Mq135 CO2 érték [ppm]">@context.Mq135Co2</MudTd>
+                            <MudTd DataLabel="Mq135 ammónia(NH4) érték [ppm]">@context.Mq135Nh4</MudTd>
+                            <MudTd DataLabel="Mq135 CO érték [ppm]">@context.Mq135Co</MudTd>
+                        </RowTemplate>
+                        <PagerContent>
+                            <MudTablePager />
+                        </PagerContent>
+                    </MudTable>
+                </MudPaper>
+                <MudPaper Class="pa-1 ma-2" Elevation="3" Style=" background-color: rgb(255,255,255,0.8);">
+                    <ApexChart TItem="SensorValue" Title="MQ-135 értékek">
+
+                        <ApexPointSeries TItem="SensorValue"
+                                         Items="valuesForSelection"
+                                         Name="Mq135 nyers érték"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.ReadDate)"
+                                         YAggregate="@(e => e.Sum(e => e.Mq135Raw))"
+                                         OrderBy="e=>e.X" />
+
+                        <ApexPointSeries TItem="SensorValue"
+                                         Items="valuesForSelection"
+                                         Name="Mq135 aceton érték [ppm]"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.ReadDate)"
+                                         YAggregate="@(e => e.Sum(e => e.Mq135Aceton))"
+                                         OrderBy="e=>e.X" />
+                        <ApexPointSeries TItem="SensorValue"
+                                         Items="valuesForSelection"
+                                         Name="Mq135 toluol érték [ppm]"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.ReadDate)"
+                                         YAggregate="@(e => e.Sum(e => e.Mq135Tolueno))"
+                                         OrderBy="e=>e.X" />
+                        <ApexPointSeries TItem="SensorValue"
+                                         Items="valuesForSelection"
+                                         Name="Mq135 alkohol érték [ppm]"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.ReadDate)"
+                                         YAggregate="@(e => e.Sum(e => e.Mq135Alcohol))"
+                                         OrderBy="e=>e.X" />
+                        <ApexPointSeries TItem="SensorValue"
+                                         Items="valuesForSelection"
+                                         Name="Mq135 CO2 érték [ppm]"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.ReadDate)"
+                                         YAggregate="@(e => e.Sum(e => e.Mq135Co2))"
+                                         OrderBy="e=>e.X" />
+                        <ApexPointSeries TItem="SensorValue"
+                                         Items="valuesForSelection"
+                                         Name="Mq135 ammónia(NH4) érték [ppm]"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.ReadDate)"
+                                         YAggregate="@(e => e.Sum(e => e.Mq135Nh4))"
+                                         OrderBy="e=>e.X" />
+                        <ApexPointSeries TItem="SensorValue"
+                                         Items="valuesForSelection"
+                                         Name="Mq135 CO érték [ppm]"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.ReadDate)"
+                                         YAggregate="@(e => e.Sum(e => e.Mq135Co))"
+                                         OrderBy="e=>e.X" />
+                    </ApexChart>
+                    <MudChart ChartType="MudBlazor.ChartType.Line" ChartSeries="@_Mq135Series" ChartOptions="@_mq135options" XAxisLabels="@mq135XaxisLbl" Width="100%" Height="350px"></MudChart>
+                </MudPaper>
+            </MudItem>
+
+            <MudItem xs="12" sm="12" md="12" lg="12" xl="12" Style="padding-top:3%; padding-bottom:3%; background-color: rgb(255,255,255,0.8);">
+                <MudText Typo="Typo.h4" Align="MudBlazor.Align.Center">MQ-6 érzékelő adatok</MudText>
+                <MudPaper Class="pa-16 ma-2" Elevation="3" Style=" background-color: rgb(255,255,255,0.8);">
+                    <MudTable Items="@valuesForSelection" FixedHeader="true" FixedFooter="true" Height="400px" Hover="true" Breakpoint="Breakpoint.Sm">
+                        <HeaderContent>
+                            <MudTh>Dátum</MudTh>
+                            <MudTh>Mq6 nyers érték</MudTh>
+                            <MudTh>Mq6 LPG érték</MudTh>
+                            <MudTh>Mq6 metán érték</MudTh>
+                            <MudTh>Mq6 hidrogén(H2) érték</MudTh>
+                            <MudTh>Mq6 alkohol érték</MudTh>
+                            <MudTh>Mq6 CO érték</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd DataLabel="Dátum">@context.ReadDate</MudTd>
+                            <MudTd DataLabel="Mq6 nyers érték">@context.Mq6Raw</MudTd>
+                            <MudTd DataLabel="Mq6 LPG érték [ppm]">@context.Mq6Lpg</MudTd>
+                            <MudTd DataLabel="Mq6 metán érték [ppm]">@context.Mq6Ch4</MudTd>
+                            <MudTd DataLabel="Mq6 hidrogén(H2) érték [ppm]">@context.Mq6H2</MudTd>
+                            <MudTd DataLabel="Mq6 alkohol érték [ppm]">@context.Mq6Alcohol</MudTd>
+                            <MudTd DataLabel="Mq6 CO érték [ppm]">@context.Mq6Co</MudTd>
+                        </RowTemplate>
+                        <PagerContent>
+                            <MudTablePager />
+                        </PagerContent>
+                    </MudTable>
+                </MudPaper>
+                <MudPaper Class="pa-1 ma-2" Elevation="3" Style=" background-color: rgb(255,255,255,0.8);">
+                    <ApexChart TItem="SensorValue" Title="MQ-6 értékek">
+
+                        <ApexPointSeries TItem="SensorValue"
+                                         Items="valuesForSelection"
+                                         Name="Mq6 nyers érték"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.ReadDate)"
+                                         YAggregate="@(e => e.Sum(e => e.Mq6Raw))"
+                                         OrderBy="e=>e.X" />
+
+                        <ApexPointSeries TItem="SensorValue"
+                                         Items="valuesForSelection"
+                                         Name="Mq6 LPG érték [ppm]"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.ReadDate)"
+                                         YAggregate="@(e => e.Sum(e => e.Mq6Lpg))"
+                                         OrderBy="e=>e.X" />
+                        <ApexPointSeries TItem="SensorValue"
+                                         Items="valuesForSelection"
+                                         Name="Mq6 metán érték [ppm]"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.ReadDate)"
+                                         YAggregate="@(e => e.Sum(e => e.Mq6Ch4))"
+                                         OrderBy="e=>e.X" />
+                        <ApexPointSeries TItem="SensorValue"
+                                         Items="valuesForSelection"
+                                         Name="Mq6 hidrogén(H2) érték [ppm]"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.ReadDate)"
+                                         YAggregate="@(e => e.Sum(e => e.Mq6H2))"
+                                         OrderBy="e=>e.X" />
+                        <ApexPointSeries TItem="SensorValue"
+                                         Items="valuesForSelection"
+                                         Name="Mq6 alkohol érték [ppm]"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.ReadDate)"
+                                         YAggregate="@(e => e.Sum(e => e.Mq6Alcohol))"
+                                         OrderBy="e=>e.X" />
+                        <ApexPointSeries TItem="SensorValue"
+                                         Items="valuesForSelection"
+                                         Name="Mq6 CO érték [ppm]"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.ReadDate)"
+                                         YAggregate="@(e => e.Sum(e => e.Mq6Co))"
+                                         OrderBy="e=>e.X" />
+                    </ApexChart>
+                    <MudChart ChartType="MudBlazor.ChartType.Line" ChartSeries="@_Mq6Series" ChartOptions="@_mq6options" XAxisLabels="@mq6XaxisLbl" Width="100%" Height="350px"></MudChart>
+                </MudPaper>
+            </MudItem>
+
+            <MudItem xs="12" sm="12" md="12" lg="12" xl="12" Style="padding-top:3%; padding-bottom:3%; background-color: rgb(255,255,255,0.8);">
+                <MudText Typo="Typo.h4" Align="MudBlazor.Align.Center">MQ-7 érzékelő adatok</MudText>
+                <MudPaper Class="pa-16 ma-2" Elevation="3" Style=" background-color: rgb(255,255,255,0.8);">
+                    <MudTable Items="@valuesForSelection" FixedHeader="true" FixedFooter="true" Height="400px" Hover="true" Breakpoint="Breakpoint.Sm">
+                        <HeaderContent>
+                            <MudTh>Dátum</MudTh>
+                            <MudTh>Mq7 nyers érték</MudTh>
+                            <MudTh>Mq7 hidrogén(H2) érték [ppm]</MudTh>
+                            <MudTh>Mq7 CO érték [ppm]</MudTh>
+                            <MudTh>Mq7 LPG érték [ppm]</MudTh>
+                            <MudTh>Mq7 metán érték [ppm]</MudTh>
+                            <MudTh>Mq7 alkohol érték [ppm]</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd DataLabel="Dátum">@context.ReadDate</MudTd>
+                            <MudTd DataLabel="Mq7 nyers érték">@context.Mq7Raw</MudTd>
+                            <MudTd DataLabel="Mq7 hidrogén(H2) érték [ppm]">@context.Mq7H2</MudTd>
+                            <MudTd DataLabel="Mq7 CO érték [ppm]">@context.Mq7Co</MudTd>
+                            <MudTd DataLabel="Mq7 LPG érték [ppm]">@context.Mq7Lpg</MudTd>
+                            <MudTd DataLabel="Mq7 metán érték [ppm]">@context.Mq7Ch4</MudTd>
+                            <MudTd DataLabel="Mq7 alkohol érték [ppm]">@context.Mq7Alcohol</MudTd>
+                        </RowTemplate>
+                        <PagerContent>
+                            <MudTablePager />
+                        </PagerContent>
+                    </MudTable>
+                </MudPaper>
+                <MudPaper Class="pa-1 ma-2" Elevation="3" Style=" background-color: rgb(255,255,255,0.8);">
+                    <ApexChart TItem="SensorValue" Title="MQ-7 értékek">
+
+                        <ApexPointSeries TItem="SensorValue"
+                                         Items="valuesForSelection"
+                                         Name="Mq7 nyers érték"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.ReadDate)"
+                                         YAggregate="@(e => e.Sum(e => e.Mq7Raw))"
+                                         OrderBy="e=>e.X" />
+
+                        <ApexPointSeries TItem="SensorValue"
+                                         Items="valuesForSelection"
+                                         Name="Mq7 hidrogén(H2) érték [ppm]"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.ReadDate)"
+                                         YAggregate="@(e => e.Sum(e => e.Mq7H2))"
+                                         OrderBy="e=>e.X" />
+                        <ApexPointSeries TItem="SensorValue"
+                                         Items="valuesForSelection"
+                                         Name="Mq7 CO érték [ppm]"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.ReadDate)"
+                                         YAggregate="@(e => e.Sum(e => e.Mq7Co))"
+                                         OrderBy="e=>e.X" />
+                        <ApexPointSeries TItem="SensorValue"
+                                         Items="valuesForSelection"
+                                         Name="Mq7 LPG érték [ppm]"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.ReadDate)"
+                                         YAggregate="@(e => e.Sum(e => e.Mq7Lpg))"
+                                         OrderBy="e=>e.X" />
+                        <ApexPointSeries TItem="SensorValue"
+                                         Items="valuesForSelection"
+                                         Name="Mq7 metán érték [ppm]"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.ReadDate)"
+                                         YAggregate="@(e => e.Sum(e => e.Mq7Ch4))"
+                                         OrderBy="e=>e.X" />
+                        <ApexPointSeries TItem="SensorValue"
+                                         Items="valuesForSelection"
+                                         Name="Mq7 alkohol érték [ppm]"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.ReadDate)"
+                                         YAggregate="@(e => e.Sum(e => e.Mq7Alcohol))"
+                                         OrderBy="e=>e.X" />
+                    </ApexChart>
+                    <MudChart ChartType="MudBlazor.ChartType.Line" ChartSeries="@_Mq7Series" ChartOptions="@_mq7options" XAxisLabels="@mq7XaxisLbl" Width="100%" Height="350px"></MudChart>
+                </MudPaper>
+            </MudItem>
+
+            <MudItem xs="12" sm="12" md="12" lg="12" xl="12" Style="padding-top:3%; padding-bottom:3%; background-color: rgb(255,255,255,0.8);">
+                <MudText Typo="Typo.h4" Align="MudBlazor.Align.Center">MQ-8 érzékelő adatok</MudText>
+                <MudPaper Class="pa-16 ma-2" Elevation="3" Style=" background-color: rgb(255,255,255,0.8);">
+                    <MudTable Items="@valuesForSelection" FixedHeader="true" FixedFooter="true" Height="400px" Hover="true" Breakpoint="Breakpoint.Sm">
+                        <HeaderContent>
+                            <MudTh>Dátum</MudTh>
+                            <MudTh>Mq8 nyers érték</MudTh>
+                            <MudTh>Mq8 hidrogén(H2) érték [ppm]</MudTh>
+                            <MudTh>Mq8 alkohol érték [ppm]</MudTh>
+                            <MudTh>Mq8 LPG érték [ppm]</MudTh>
+                            <MudTh>Mq8 metán érték [ppm]</MudTh>
+                            <MudTh>Mq8 CO érték [ppm]</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd DataLabel="Dátum">@context.ReadDate</MudTd>
+                            <MudTd DataLabel="Mq8 nyers érték">@context.Mq8Raw</MudTd>
+                            <MudTd DataLabel="Mq8 hidrogén(H2) érték [ppm]">@context.Mq8H2</MudTd>
+                            <MudTd DataLabel="Mq8 Alkohol érték [ppm]">@context.Mq8Alcohol</MudTd>
+                            <MudTd DataLabel="Mq8 LPG érték [ppm]">@context.Mq8Lpg</MudTd>
+                            <MudTd DataLabel="Mq8 metán érték [ppm]">@context.Mq8Ch4</MudTd>
+                            <MudTd DataLabel="Mq8 CO érték [ppm]">@context.Mq8Co</MudTd>
+                        </RowTemplate>
+                        <PagerContent>
+                            <MudTablePager />
+                        </PagerContent>
+                    </MudTable>
+                </MudPaper>
+                <MudPaper Class="pa-1 ma-2" Elevation="3" Style=" background-color: rgb(255,255,255,0.8);">
+                    <ApexChart TItem="SensorValue" Title="MQ-8 értékek">
+
+                        <ApexPointSeries TItem="SensorValue"
+                                         Items="valuesForSelection"
+                                         Name="Mq8 nyers érték"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.ReadDate)"
+                                         YAggregate="@(e => e.Sum(e => e.Mq8Raw))"
+                                         OrderBy="e=>e.X" />
+
+                        <ApexPointSeries TItem="SensorValue"
+                                         Items="valuesForSelection"
+                                         Name="Mq8 hidrogén(H2) érték [ppm]"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.ReadDate)"
+                                         YAggregate="@(e => e.Sum(e => e.Mq8H2))"
+                                         OrderBy="e=>e.X" />
+                        <ApexPointSeries TItem="SensorValue"
+                                         Items="valuesForSelection"
+                                         Name="Mq8 Alkohol érték [ppm]"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.ReadDate)"
+                                         YAggregate="@(e => e.Sum(e => e.Mq8Alcohol))"
+                                         OrderBy="e=>e.X" />
+                        <ApexPointSeries TItem="SensorValue"
+                                         Items="valuesForSelection"
+                                         Name="Mq8 LPG érték [ppm]"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.ReadDate)"
+                                         YAggregate="@(e => e.Sum(e => e.Mq8Lpg))"
+                                         OrderBy="e=>e.X" />
+                        <ApexPointSeries TItem="SensorValue"
+                                         Items="valuesForSelection"
+                                         Name="Mq8 metán érték [ppm]"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.ReadDate)"
+                                         YAggregate="@(e => e.Sum(e => e.Mq8Ch4))"
+                                         OrderBy="e=>e.X" />
+                        <ApexPointSeries TItem="SensorValue"
+                                         Items="valuesForSelection"
+                                         Name="Mq8 CO érték [ppm]"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.ReadDate)"
+                                         YAggregate="@(e => e.Sum(e => e.Mq8Co))"
+                                         OrderBy="e=>e.X" />
+                    </ApexChart>
+                    <MudChart ChartType="MudBlazor.ChartType.Line" ChartSeries="@_Mq8Series" ChartOptions="@_mq8options" XAxisLabels="@mq8XaxisLbl" Width="100%" Height="350px"></MudChart>
+                </MudPaper>
+            </MudItem>
+
+            <MudItem xs="12" sm="12" md="12" lg="12" xl="12" Style="padding-top:3%; padding-bottom:3%; background-color: rgb(255,255,255,0.8);">
+                <MudText Typo="Typo.h4" Align="MudBlazor.Align.Center">MQ-9 érzékelő adatok</MudText>
+                <MudPaper Class="pa-16 ma-2" Elevation="3" Style=" background-color: rgb(255,255,255,0.8);">
+                    <MudTable Items="@valuesForSelection" FixedHeader="true" FixedFooter="true" Height="400px" Hover="true" Breakpoint="Breakpoint.Sm">
+                        <HeaderContent>
+                            <MudTh>Dátum</MudTh>
+                            <MudTh>Mq9 nyers érték</MudTh>
+                            <MudTh>Mq9 CO érték [ppm]</MudTh>
+                            <MudTh>Mq9 LPG érték [ppm]</MudTh>
+                            <MudTh>Mq9 metán érték [ppm]</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd DataLabel="Dátum">@context.ReadDate</MudTd>
+                            <MudTd DataLabel="Mq9 nyers érték">@context.Mq9Raw</MudTd>
+                            <MudTd DataLabel="Mq9 CO érték [ppm]">@context.Mq9Co</MudTd>
+                            <MudTd DataLabel="Mq9 LPG érték [ppm]">@context.Mq9Lpg</MudTd>
+                            <MudTd DataLabel="Mq9 metán érték [ppm]">@context.Mq9Ch4</MudTd>
+                        </RowTemplate>
+                        <PagerContent>
+                            <MudTablePager />
+                        </PagerContent>
+                    </MudTable>
+                </MudPaper>
+                <MudPaper Class="pa-1 ma-2" Elevation="3" Style=" background-color: rgb(255,255,255,0.8);">
+                    <ApexChart TItem="SensorValue" Title="MQ-9 értékek">
+
+                        <ApexPointSeries TItem="SensorValue"
+                                         Items="valuesForSelection"
+                                         Name="Mq9 nyers érték"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.ReadDate)"
+                                         YAggregate="@(e => e.Sum(e => e.Mq9Raw))"
+                                         OrderBy="e=>e.X" />
+
+                        <ApexPointSeries TItem="SensorValue"
+                                         Items="valuesForSelection"
+                                         Name="Mq9 CO érték [ppm]"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.ReadDate)"
+                                         YAggregate="@(e => e.Sum(e => e.Mq9Co))"
+                                         OrderBy="e=>e.X" />
+                        <ApexPointSeries TItem="SensorValue"
+                                         Items="valuesForSelection"
+                                         Name="Mq9 LPG érték [ppm]"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.ReadDate)"
+                                         YAggregate="@(e => e.Sum(e => e.Mq9Lpg))"
+                                         OrderBy="e=>e.X" />
+                        <ApexPointSeries TItem="SensorValue"
+                                         Items="valuesForSelection"
+                                         Name="Mq9 metán érték [ppm]"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.ReadDate)"
+                                         YAggregate="@(e => e.Sum(e => e.Mq9Ch4))"
+                                         OrderBy="e=>e.X" />
+                        
+                    </ApexChart>
+                    <MudChart ChartType="MudBlazor.ChartType.Line" ChartSeries="@_Mq9Series" ChartOptions="@_mq9options" XAxisLabels="@mq9XaxisLbl" Width="100%" Height="350px"></MudChart>
+                </MudPaper>
+            </MudItem>
+
+
+        }
+    </MudGrid>
+}
+
+
+
+@code {
+}

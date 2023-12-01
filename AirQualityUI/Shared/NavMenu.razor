@@ -1,0 +1,53 @@
+﻿@using AirQualityUI.Data
+
+@* Navigációs menü megjelenését meghatározó programkód. *@
+
+<MudNavMenu Margin="Margin.Normal" Color="Color.Error">
+
+    @* Bárki számára elérhető tartalom. *@
+    <MudNavLink Match="NavLinkMatch.All" Href="/" Icon="@Icons.Material.Outlined.Home">Kezdőlap</MudNavLink>
+
+    @* Kizárólag belépett, admin jogosultsággal rendelkezők számára elérhető tartalom. *@
+    <AuthorizeView Roles="admin">
+        <Authorized>
+            <MudNavGroup Icon="@Icons.Material.Outlined.AdminPanelSettings" Title="Admin menüelemek">
+                <MudNavLink Match="NavLinkMatch.All" Href="/register" Icon="@Icons.Material.Outlined.AppRegistration">Új felhasználó hozzáadás</MudNavLink>
+                <MudNavLink Match="NavLinkMatch.All" Href="/updateUserDetails" Icon="@Icons.Material.Outlined.AppRegistration">Felhasználói adatok módosítása</MudNavLink>
+                <MudNavLink Match="NavLinkMatch.All" Href="/addNewModule" Icon="@Icons.Material.Outlined.ViewModule">Új modul létrehozása</MudNavLink>
+                <MudNavLink Match="NavLinkMatch.All" Href="/modifyModule" Icon="@Icons.Material.Outlined.ViewModule">Modul adatainak módosítása</MudNavLink>
+            </MudNavGroup>
+        </Authorized>
+    </AuthorizeView>
+
+    @* Minden belépett felhasználó számára elérhető tartalom. *@
+    <AuthorizeView Roles="admin,user">
+        <Authorized>
+            <MudNavGroup Icon="@Icons.Material.Outlined.DataArray" Title="Értékek">
+                <MudNavLink Match="NavLinkMatch.All" Href="/listAndGraphForSelectedDay" Icon="@Icons.Material.Outlined.AutoGraph">Kiválasztható dátumra vonatkozó adatok áttekintése</MudNavLink>
+                <MudNavLink Match="NavLinkMatch.All" Href="/listAndGraphForLastWeek" Icon="@Icons.Material.Outlined.AutoGraph">Elmúlt heti adatok áttekintése</MudNavLink>
+                <MudNavLink Match="NavLinkMatch.All" Href="/listAndGraphForToday" Icon="@Icons.Material.Outlined.AutoGraph">Mai napra vonatkozó adatok áttekintése</MudNavLink>
+                <MudNavLink Match="NavLinkMatch.All" Href="/listSensorValues" Icon="@Icons.Material.Outlined.List">Értékek listázása megadott időintervallumra</MudNavLink>
+            </MudNavGroup>
+            <MudNavLink Match="NavLinkMatch.All" Href="/logout" Icon="@Icons.Material.Outlined.Logout">Kilépés</MudNavLink>
+        </Authorized>
+
+        @* Kizárólag be nem jelentkezett felhasználók számára elérhető tartalom.  *@
+        <NotAuthorized>
+            <MudNavLink Match="NavLinkMatch.All" Href="/login" Icon="@Icons.Material.Outlined.Login">Belépés</MudNavLink>
+        </NotAuthorized>
+    </AuthorizeView>
+    
+
+</MudNavMenu>
+
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}

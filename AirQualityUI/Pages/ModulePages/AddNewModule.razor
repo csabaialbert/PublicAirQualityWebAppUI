@@ -1,0 +1,59 @@
+﻿@page "/addNewModule"
+@attribute [Authorize(Roles = "admin")]
+
+@inject NavigationManager NavigationManager;
+@using AirQualityUI.Models;
+@using AirQualityUI.Services;
+@using AirQualityUI.Data;
+
+<PageTitle>Modul létrehozása</PageTitle>
+
+
+@* Új modul hozzáadási felületét meghatározó programkód
+Amíg a loadingDatas nevű boolean változó igaz, kizárólag egy progressbar jelenik meg.
+Amint az adatok betöltődnek megjelenik a modul készítésre szolgáló űrlap.
+*@
+
+
+@if (loadingDatas)
+{
+    <MudGrid Justify="Justify.FlexStart">
+        <MudItem xs="12" sm="12" md="12" lg="12" xl="12">
+            <MudProgressLinear Style="width:100%;" Color="Color.Error" Indeterminate="true" />
+        </MudItem>
+    </MudGrid>
+
+}
+else
+{
+    <MudGrid Justify="Justify.Center" Class="d-flex py-4 justify-center align-center" Style="background-color:rgb(255,255,255,0.6)">
+        <MudItem xs="8" sm="8" md="6" lg="6" xl="4" Style="background-color:rgb(255,255,255,0.6)">
+            <MudCard Class="py-lg-5">
+                <MudForm Model="@module" @ref="@form" Validation="@(moduleValidator.ValidateValue)" ValidationDelay="0">
+                    <MudCardContent>
+                        <MudText Typo="Typo.caption" Color="Color.Error" Align="Align.Center">@message</MudText>
+                        <MudTextField @bind-Value="module.ModuleName"
+                                      For="@(() => module.ModuleName)"
+                                      Immediate="true"
+                                      Label="Modulnév"
+                                      OnlyValidateIfDirty="true" />
+                        <MudTextField @bind-Value="module.Description"
+                                          For="@(() => module.Description)"
+                                        Immediate="true"
+                                        Label="Leírás"
+                                        Lines="6"
+                                        OnlyValidateIfDirty="true" />
+
+                    </MudCardContent>
+                </MudForm>
+                <MudCardActions>
+                    <MudButton Variant="Variant.Filled" Disabled="@submitDisabled" Color="Color.Success" Class="ml-auto" OnClick="@(async () => await Submit())">Létrehozás</MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+}
+
+@code {
+    
+}
